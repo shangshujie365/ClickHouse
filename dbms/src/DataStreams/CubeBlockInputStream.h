@@ -37,6 +37,8 @@ private:
     UInt32 mask = 0;
     Block source_block;
     Block zero_block;
+    BlocksList ori_blocks;
+    bool hasMasked = false;
 };
 
 }
