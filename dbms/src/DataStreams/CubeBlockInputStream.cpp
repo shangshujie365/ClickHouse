@@ -45,36 +45,31 @@ Block CubeBlockInputStream::readImpl()
     }else {
         source_block = children[0]->read();
         if (!source_block) {
-            BlocksList cube_blocks;
-            for (auto &block : ori_blocks) {
-                zero_block = block.cloneEmpty();
-                for (auto key : keys)
-                {
-                    auto & current = zero_block.getByPosition(key);
-                    current.column = current.column->cloneResized(block.rows());
-                }
-
-                mask = (1 << keys.size()) - 1;
-                while (mask) {
-                    --mask;
-                    Block cube_block = block;
-                    for (size_t i = 0; i < keys.size(); ++i) {
-                        if (!((mask >> i) & 1)) {
-                            size_t pos = keys.size() - i - 1;
-                            auto &current = cube_block.getByPosition(keys[pos]);
-                            current.column = zero_block.getByPosition(keys[pos]).column;
-                        }
-                    }
-                    cube_blocks.push_back(cube_block);
-                }
-            }
-
             hasMasked = true;
 
             Block finalized = aggregator.mergeBlocks(cube_blocks, true);
             return finalized;
         } else {
-            ori_blocks.push_back(source_block);
+            zero_block = source_block.cloneEmpty();
+            for (auto key : keys)
+            {
+                auto & current = zero_block.getByPosition(key);
+                current.column = current.column->cloneResized(source_block.rows());
+            }
+
+            mask = (1 << keys.size()) - 1;
+            while (mask) {
+                --mask;
+                Block cube_block = source_block;
+                for (size_t i = 0; i < keys.size(); ++i) {
+                    if (!((mask >> i) & 1)) {
+                        size_t pos = keys.size() - i - 1;
+                        auto &current = cube_block.getByPosition(keys[pos]);
+                        current.column = zero_block.getByPosition(keys[pos]).column;
+                    }
+                }
+                cube_blocks.push_back(cube_block);
+            }
 
             Block finalized = source_block;
             finalizeBlock(finalized);
