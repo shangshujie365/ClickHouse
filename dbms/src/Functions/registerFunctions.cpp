@@ -1,18 +1,15 @@
-#include <Common/config.h>
-#include <Functions/registerFunctions.h>
 #include <Functions/FunctionFactory.h>
-
-
+#include <Functions/registerFunctions.h>
 
 namespace DB
 {
-
 /** These functions are defined in a separate translation units.
   * This is done in order to reduce the consumption of RAM during build, and to speed up the parallel build.
   */
 void registerFunctionsArithmetic(FunctionFactory &);
 void registerFunctionsArray(FunctionFactory &);
 void registerFunctionsTuple(FunctionFactory &);
+void registerFunctionsBitmap(FunctionFactory &);
 void registerFunctionsCoding(FunctionFactory &);
 void registerFunctionsComparison(FunctionFactory &);
 void registerFunctionsConditional(FunctionFactory &);
@@ -33,17 +30,17 @@ void registerFunctionsRound(FunctionFactory &);
 void registerFunctionsString(FunctionFactory &);
 void registerFunctionsStringArray(FunctionFactory &);
 void registerFunctionsStringSearch(FunctionFactory &);
+void registerFunctionsStringRegex(FunctionFactory &);
+void registerFunctionsStringSimilarity(FunctionFactory &);
 void registerFunctionsURL(FunctionFactory &);
 void registerFunctionsVisitParam(FunctionFactory &);
 void registerFunctionsMath(FunctionFactory &);
 void registerFunctionsGeo(FunctionFactory &);
+void registerFunctionsIntrospection(FunctionFactory &);
 void registerFunctionsNull(FunctionFactory &);
 void registerFunctionsFindCluster(FunctionFactory &);
-void registerFunctionTransform(FunctionFactory &);
-
-#if USE_ICU
-void registerFunctionConvertCharset(FunctionFactory &);
-#endif
+void registerFunctionsJSON(FunctionFactory &);
+void registerFunctionSymbolizeAddress(FunctionFactory &);
 
 void registerFunctions()
 {
@@ -52,6 +49,7 @@ void registerFunctions()
     registerFunctionsArithmetic(factory);
     registerFunctionsArray(factory);
     registerFunctionsTuple(factory);
+    registerFunctionsBitmap(factory);
     registerFunctionsCoding(factory);
     registerFunctionsComparison(factory);
     registerFunctionsConditional(factory);
@@ -72,17 +70,16 @@ void registerFunctions()
     registerFunctionsString(factory);
     registerFunctionsStringArray(factory);
     registerFunctionsStringSearch(factory);
+    registerFunctionsStringRegex(factory);
+    registerFunctionsStringSimilarity(factory);
     registerFunctionsURL(factory);
     registerFunctionsVisitParam(factory);
     registerFunctionsMath(factory);
     registerFunctionsGeo(factory);
     registerFunctionsNull(factory);
     registerFunctionsFindCluster(factory);
-    registerFunctionTransform(factory);
-
-#if USE_ICU
-    registerFunctionConvertCharset(factory);
-#endif
+    registerFunctionsJSON(factory);
+    registerFunctionSymbolizeAddress(factory);
 }
 
 }

@@ -1,4 +1,5 @@
 #include <Common/config.h>
+#include "config_core.h"
 
 #include <Storages/registerStorages.h>
 #include <Storages/StorageFactory.h>
@@ -23,6 +24,10 @@ void registerStorageSet(StorageFactory & factory);
 void registerStorageJoin(StorageFactory & factory);
 void registerStorageView(StorageFactory & factory);
 void registerStorageMaterializedView(StorageFactory & factory);
+
+#if USE_HDFS
+void registerStorageHDFS(StorageFactory & factory);
+#endif
 
 #if USE_POCO_SQLODBC || USE_POCO_DATAODBC
 void registerStorageODBC(StorageFactory & factory);
@@ -59,6 +64,10 @@ void registerStorages()
     registerStorageJoin(factory);
     registerStorageView(factory);
     registerStorageMaterializedView(factory);
+
+    #if USE_HDFS
+    registerStorageHDFS(factory);
+    #endif
 
     #if USE_POCO_SQLODBC || USE_POCO_DATAODBC
     registerStorageODBC(factory);

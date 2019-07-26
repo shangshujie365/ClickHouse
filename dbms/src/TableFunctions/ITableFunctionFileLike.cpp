@@ -9,25 +9,25 @@
 #include <Interpreters/Context.h>
 #include <Interpreters/evaluateConstantExpression.h>
 #include <boost/algorithm/string.hpp>
-#include <Common/Exception.h>
-#include <Common/typeid_cast.h>
+
 
 namespace DB
 {
+
 namespace ErrorCodes
 {
     extern const int NUMBER_OF_ARGUMENTS_DOESNT_MATCH;
 }
 
-StoragePtr ITableFunctionFileLike::executeImpl(const ASTPtr & ast_function, const Context & context) const
+StoragePtr ITableFunctionFileLike::executeImpl(const ASTPtr & ast_function, const Context & context, const std::string & table_name) const
 {
     // Parse args
-    ASTs & args_func = typeid_cast<ASTFunction &>(*ast_function).children;
+    ASTs & args_func = ast_function->children;
 
     if (args_func.size() != 1)
         throw Exception("Table function '" + getName() + "' must have arguments.", ErrorCodes::LOGICAL_ERROR);
 
-    ASTs & args = typeid_cast<ASTExpressionList &>(*args_func.at(0)).children;
+    ASTs & args = args_func.at(0)->children;
 
     if (args.size() != 3)
         throw Exception("Table function '" + getName() + "' requires exactly 3 arguments: filename, format and structure.",
@@ -36,9 +36,9 @@ StoragePtr ITableFunctionFileLike::executeImpl(const ASTPtr & ast_function, cons
     for (size_t i = 0; i < 3; ++i)
         args[i] = evaluateConstantExpressionOrIdentifierAsLiteral(args[i], context);
 
-    std::string filename = static_cast<const ASTLiteral &>(*args[0]).value.safeGet<String>();
-    std::string format = static_cast<const ASTLiteral &>(*args[1]).value.safeGet<String>();
-    std::string structure = static_cast<const ASTLiteral &>(*args[2]).value.safeGet<String>();
+    std::string filename = args[0]->as<ASTLiteral &>().value.safeGet<String>();
+    std::string format = args[1]->as<ASTLiteral &>().value.safeGet<String>();
+    std::string structure = args[2]->as<ASTLiteral &>().value.safeGet<String>();
 
     // Create sample block
     std::vector<std::string> structure_vals;
@@ -60,10 +60,11 @@ StoragePtr ITableFunctionFileLike::executeImpl(const ASTPtr & ast_function, cons
     }
 
     // Create table
-    StoragePtr storage = getStorage(filename, format, sample_block, const_cast<Context &>(context));
+    StoragePtr storage = getStorage(filename, format, sample_block, const_cast<Context &>(context), table_name);
 
     storage->startup();
 
     return storage;
 }
+
 }
